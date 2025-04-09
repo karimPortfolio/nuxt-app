@@ -2,7 +2,7 @@
 
 export MYSQL_ROOT_PASSWORD=$(sudo -E grep 'temporary password' /var/log/mysqld.log | tail -1 | awk '{print $NF}')
 export MYSQL_USER="nuxt_app_user"
-export MYSQL_PASSWORD="nuxtDB@2025"
+
 export MYSQL_DATABASE="nuxt_app_db"
 export PROJECT_REPO=git@github.com:karimPortfolio/nuxt-app.git
 export PROJECT_NAME=nuxt-app

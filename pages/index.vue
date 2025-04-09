@@ -43,11 +43,10 @@
               <q-btn
                 unelevated
                 rounded
-                color="white"
                 text-color="blue-800"
                 size="lg"
                 label="Get Started"
-                class="font-medium px-10 py-2 hover:bg-blue-50 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
+                class="font-medium px-10 py-2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-blue-700 hover:bg-yellow-700 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
               />
               <q-btn
                 outline
@@ -346,6 +345,8 @@ useHead({
       content:
         "Discover thousands of online courses from expert instructors around the world.",
     },
+    { rel: "canonical", href: "http://portfolio.futurixtech.site" }
+
   ],
 });
 </script>

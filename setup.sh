@@ -6,7 +6,7 @@ export MYSQL_USER="nuxt_app_user"
 export MYSQL_DATABASE="nuxt_app_db"
 export PROJECT_REPO=git@github.com:karimPortfolio/nuxt-app.git
 export PROJECT_NAME=nuxt-app
-export PATH="/var/www"
+export DIR_PATH="/var/www"
 # export APP_FILE_NAME="app.js"
 
 #update system
@@ -24,9 +24,10 @@ fi
 # Install Nodejs if not installed
 if ! node -v &>/dev/null; then
   echo 'Nodejs is not installed. Installing Nodejs'
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-  nvm install --lts
-  nvm use --lts
+  curl -fsSL https://rpm.nodesource.com/setup_16.x | sudo bash -
+  sudo yum install -y nodejs
+  node -v
+  npm -v
 else 
   echo 'Nodejs already installed'
 fi

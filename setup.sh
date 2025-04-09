@@ -1,13 +1,13 @@
 #!/bin/bash
 
 export MYSQL_ROOT_PASSWORD=$(sudo -E grep 'temporary password' /var/log/mysqld.log | tail -1 | awk '{print $NF}')
-export MYSQL_USER="newuser"
-export MYSQL_PASSWORD="newpassword"
-export MYSQL_DATABASE="yourdatabase"
-export PROJECT_REPO=git@github.com:karimPortfolio/deploy-node-app.git
-export PROJECT_NAME=deploy-node-app
+export MYSQL_USER="nuxt_app_user"
+export MYSQL_PASSWORD="nuxtDB@2025"
+export MYSQL_DATABASE="nuxt_app_db"
+export PROJECT_REPO=git@github.com:karimPortfolio/nuxt-app.git
+export PROJECT_NAME=nuxt-app
 export PATH="/var/www"
-export APP_FILE_NAME="app.js"
+# export APP_FILE_NAME="app.js"
 
 #update system
  yum update -y
@@ -37,22 +37,6 @@ if ! pm2 -v &>/dev/null; then
   npm install pm2 -g
 else 
   echo 'PM2 already installed'
-  fi
-
-# Install PM2 if not installed
-if ! pm2 -v &>/dev/null; then
-  echo 'PM2 is not installed. Installing PM2'
-  npm install pm2 -g
-else 
-  echo 'PM2 already installed'
-fi
-
-# Install supervisor
-if ! supervisor -v &>/dev/null; then
-  echo 'Supervisor is not installed. Installing Supervisor'
-  npm install supervisor -g
-else 
-  echo 'Supervisor already installed'
 fi
 
 
@@ -77,3 +61,28 @@ FLUSH PRIVILEGES;
 EXIT;
 EOF
 
+
+# Clone project
+echo "cloning project from $PROJECT_REPO ..."
+git clone "$PROJECT_REPO"
+
+
+# Navigate into the project folder
+cd "$PROJECT_NAME" || { echo "Failed to enter directory $PROJECT_NAME"; exit 1; }
+
+# Install project dependencies
+echo "Installing project dependencies..."
+npm install
+
+# create .env file
+echo "Creating .env file..."
+touch .env
+echo DATABASE_URL="mysql://$MYSQL_USER:$MYSQL_PASSWORD@localhost:3306/$MYSQL_DATABASE" > .env
+
+
+# run project
+echo "Running project..."
+node .output/server/index.mjs
+
+
+echo "Congrats!! You're live now ;)"

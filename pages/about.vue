@@ -1,5 +1,5 @@
 <template>
-    <h3 class="text-center font-semibold text-primary mt-3">Welcome to the about page</h3>
+    <h3 class="text-center font-semibold text-primary ">Welcome to the about page</h3>
     <p class="text-xl text-center m-0">This page contains information about our organization and its mission.</p>
     
     <div class="mt-6 px-5 grid grid-cols-1 gap-6 md:grid-cols-4">
@@ -40,7 +40,6 @@
             </template>
             </CustomCard>
         </div>
-        {{ data }}
     </div>
 </template>
 
@@ -75,7 +74,7 @@ const cardsInfo = [
 
 
 const { data: users } = await useFetch('https://jsonplaceholder.typicode.com/users', {
-    server: false
+    server: true
 });
 
 useSeoMeta({

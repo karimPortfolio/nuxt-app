@@ -1,5 +1,8 @@
 import { getCurrentInstance, ref, computed, onBeforeUpdate, h } from 'vue';
-import { j as createComponent, U as useFormProps, k as useSizeProps, n as useSize, V as useFormAttrs, r as hMergeSlot, h as __nuxt_component_2, W as useFormInject, s as stopAndPrevent } from '../build/server.mjs';
+import { u as useSizeProps, a as useSize, _ as __nuxt_component_2$1 } from './QIcon.mjs';
+import { u as useFormProps, b as useFormAttrs, a as useFormInject } from './private.use-form.mjs';
+import { c as createComponent, s as stopAndPrevent } from '../build/server.mjs';
+import { a as hMergeSlot } from './render.mjs';
 
 function between (v, min, max) {
   return max <= min
@@ -7,7 +10,7 @@ function between (v, min, max) {
     : Math.min(max, Math.max(min, v))
 }
 
-const __nuxt_component_5 = createComponent({
+const __nuxt_component_5$1 = createComponent({
   name: 'QRating',
 
   props: {
@@ -253,7 +256,7 @@ const __nuxt_component_5 = createComponent({
             onKeyup (e) { onKeyup(e, i); }
           }, hMergeSlot(
             slots[ `tip-${ i }` ],
-            [ h(__nuxt_component_2, { class: iconClass, name }) ]
+            [ h(__nuxt_component_2$1, { class: iconClass, name }) ]
           ))
         );
       });
@@ -271,5 +274,5 @@ const __nuxt_component_5 = createComponent({
   }
 });
 
-export { __nuxt_component_5 as _ };
+export { __nuxt_component_5$1 as _ };
 //# sourceMappingURL=QRating.mjs.map

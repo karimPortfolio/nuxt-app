@@ -1,6 +1,8 @@
 import { mergeProps, useSSRContext } from 'vue';
 import { ssrRenderAttrs, ssrRenderComponent, ssrRenderList, ssrRenderAttr, ssrInterpolate } from 'vue/server-renderer';
-import { f as __nuxt_component_0, h as __nuxt_component_2 } from './server.mjs';
+import { _ as __nuxt_component_0$1 } from '../_/QBtn.mjs';
+import { _ as __nuxt_component_2$1 } from '../_/QIcon.mjs';
+import './server.mjs';
 import '../_/nitro.mjs';
 import 'node:http';
 import 'node:https';
@@ -15,6 +17,7 @@ import 'unhead';
 import '@unhead/shared';
 import 'vue-router';
 import '@prisma/client';
+import '../_/render.mjs';
 
 const _sfc_main = {
   __name: "CTASection",
@@ -34,8 +37,8 @@ const _sfc_main = {
       { src: "https://cdn.worldvectorlogo.com/logos/ibm-1.svg", alt: "IBM" }
     ];
     return (_ctx, _push, _parent, _attrs) => {
-      const _component_q_btn = __nuxt_component_0;
-      const _component_q_icon = __nuxt_component_2;
+      const _component_q_btn = __nuxt_component_0$1;
+      const _component_q_icon = __nuxt_component_2$1;
       _push(`<section${ssrRenderAttrs(mergeProps({ class: "py-24 bg-gradient-to-br from-purple-700 via-violet-600 to-blue-700 text-white overflow-hidden relative" }, _attrs))}><div class="absolute inset-0 bg-[url(&#39;https://www.transparenttextures.com/patterns/cubes.png&#39;)] opacity-5 animate-pulse"></div><div class="absolute -top-40 -right-40 w-80 h-80 bg-pink-500 rounded-full filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div><div class="absolute top-60 right-20 w-60 h-60 bg-yellow-500 rounded-full filter blur-3xl opacity-10 animate-blob animation-delay-3000"></div><div class="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div><div class="container mx-auto px-6 text-center relative z-10"><h2 class="text-5xl md:text-6xl font-extrabold mb-6 leading-tight"> Ready to Start Learning? </h2><p class="text-xl mb-10 max-w-2xl mx-auto font-light opacity-90 leading-relaxed"> Join thousands of students who are already learning on our platform and advance your career today. </p><div class="flex flex-col sm:flex-row justify-center gap-4 mb-8">`);
       _push(ssrRenderComponent(_component_q_btn, {
         unelevated: "",

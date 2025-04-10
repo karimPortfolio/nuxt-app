@@ -1,9 +1,13 @@
 import { getCurrentInstance, computed, h, mergeProps, withCtx, createTextVNode, createVNode, toDisplayString, createBlock, createCommentVNode, openBlock, useSSRContext } from 'vue';
 import { ssrRenderAttrs, ssrRenderComponent, ssrRenderList, ssrRenderStyle, ssrGetDirectiveProps, ssrInterpolate } from 'vue/server-renderer';
-import { j as createComponent, k as useSizeProps, l as useDarkProps, m as useDark, n as useSize, o as hDir, h as __nuxt_component_2, p as hMergeSlotSafely, s as stopAndPrevent, q as __q_directive_0, r as hMergeSlot, f as __nuxt_component_0 } from './server.mjs';
+import { u as useSizeProps, a as useSize, _ as __nuxt_component_2$1 } from '../_/QIcon.mjs';
+import { b as __q_directive_0, _ as __nuxt_component_0$1$1 } from '../_/QBtn.mjs';
+import { u as useDarkProps, a as useDark } from '../_/use-dark.mjs';
+import { c as createComponent, s as stopAndPrevent } from './server.mjs';
+import { b as hDir, c as hMergeSlotSafely, a as hMergeSlot } from '../_/render.mjs';
 import { a as __nuxt_component_1, _ as __nuxt_component_8 } from '../_/QTooltip.mjs';
 import { _ as __nuxt_component_0$1, a as __nuxt_component_4 } from '../_/QCardSection.mjs';
-import { _ as __nuxt_component_5 } from '../_/QRating.mjs';
+import { _ as __nuxt_component_5$1 } from '../_/QRating.mjs';
 
 const defaultSizes$1 = {
   xs: 8,
@@ -140,7 +144,7 @@ const __nuxt_component_0$2 = createComponent({
       );
 
       hasLeftIcon.value === true && child.push(
-        h(__nuxt_component_2, {
+        h(__nuxt_component_2$1, {
           class: 'q-chip__icon q-chip__icon--left',
           name: leftIcon.value
         })
@@ -157,14 +161,14 @@ const __nuxt_component_0$2 = createComponent({
       );
 
       props.iconRight && child.push(
-        h(__nuxt_component_2, {
+        h(__nuxt_component_2$1, {
           class: 'q-chip__icon q-chip__icon--right',
           name: props.iconRight
         })
       );
 
       props.removable === true && child.push(
-        h(__nuxt_component_2, {
+        h(__nuxt_component_2$1, {
           class: 'q-chip__icon q-chip__icon--remove cursor-pointer',
           name: removeIcon.value,
           ...attributes.value.remove,
@@ -345,12 +349,12 @@ const _sfc_main = {
     return (_ctx, _push, _parent, _attrs) => {
       const _component_q_chip = __nuxt_component_0$2;
       const _component_q_badge = __nuxt_component_1;
-      const _component_q_icon = __nuxt_component_2;
+      const _component_q_icon = __nuxt_component_2$1;
       const _component_q_card = __nuxt_component_0$1;
       const _component_q_card_section = __nuxt_component_4;
-      const _component_q_rating = __nuxt_component_5;
+      const _component_q_rating = __nuxt_component_5$1;
       const _component_q_linear_progress = __nuxt_component_6;
-      const _component_q_btn = __nuxt_component_0;
+      const _component_q_btn = __nuxt_component_0$1$1;
       const _component_q_tooltip = __nuxt_component_8;
       const _directive_ripple = __q_directive_0;
       _push(`<section${ssrRenderAttrs(mergeProps({ class: "py-24 px-4" }, _attrs))}><div class="container mx-auto"><div class="text-center mb-20 relative"><div class="absolute -left-16 top-10 w-32 h-32 bg-blue-100 rounded-full opacity-20 blur-xl"></div><div class="absolute -right-16 bottom-0 w-40 h-40 bg-indigo-100 rounded-full opacity-30 blur-xl"></div><span class="text-xs font-bold tracking-widest uppercase text-indigo-700 mb-4 inline-block animate__animated animate__fadeInDown relative px-5 py-2 bg-white bg-opacity-70 backdrop-blur-sm rounded-full shadow-sm"><span class="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-50 to-blue-50 animate-pulse opacity-50"></span><span class="relative">Discover Your Path</span></span><h2 class="text-4xl md:text-6xl font-extrabold mb-6 animate__animated animate__fadeIn"><span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-700 via-indigo-600 to-violet-700"> Popular Categories </span></h2><p class="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed animate__animated animate__fadeInUp animate__delay-1s mb-10"> Explore our <span class="text-indigo-700 font-semibold">most sought-after</span> learning paths to accelerate your career and unlock new opportunities </p><div class="flex flex-wrap justify-center gap-4 animate__animated animate__fadeInUp animate__delay-2s">`);

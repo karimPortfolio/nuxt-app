@@ -1,35 +1,26 @@
 <template>
-  <q-layout>
-    <q-page-container>
-      <q-page>
-        <div>
-          <h3 class="text-center font-semibold text-primary mt-3">
-            Welcome to the carriers page
-          </h3>
-          <p class="text-xl text-center m-0">
-            This page contains information about our organization and its
-            mission.
-          </p>
-        </div>
+  <div>
+    <h3 class="text-center font-semibold text-primary ">
+      Welcome to the carriers page
+    </h3>
+    <p class="text-xl text-center m-0">
+      This page contains information about our organization and its mission.
+    </p>
+  </div>
 
-        <div class="grid grid-cols-4 px-6 gap-5 mt-10">
-          <CustomCard
-            v-for="job in data"
-            :key="job.title"
-            icon="mdiBriefcase"
-            :title="job.title"
-            :subtitle="job.company"
-            :content="job.location"
-          />
-        </div>
-      </q-page>
-    </q-page-container>
-  </q-layout>
+  <div class="grid grid-cols-4 px-6 gap-5 mt-10">
+    <CustomCard
+      v-for="job in data"
+      :key="job.title"
+      icon="mdiBriefcase"
+      :title="job.title"
+      :subtitle="job.company"
+      :content="job.location"
+    />
+  </div>
 </template>
 <script setup>
-
-const { data } = await useFetch('/api/jobs');
-
+const { data } = await useFetch("/api/jobs");
 
 useSeoMeta({
   title: "Carriers",

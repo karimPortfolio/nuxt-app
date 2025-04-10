@@ -298,8 +298,6 @@
     <!-- CTA Section -->
     <CTASection />
 
-    <!-- Footer -->
-    <FooterSection />
   </div>
 </template>
 <script setup>
@@ -307,7 +305,6 @@ import CategoriesSection from "./home/CategoriesSection.vue";
 import FeaturesCoursesSection from "./home/FeaturesCoursesSection.vue";
 import CTASection from "./home/CTASection.vue";
 import TestimonialsSection from "./home/TestimonialsSection.vue";
-import FooterSection from "./home/FooterSection.vue";
 
 //add seo meta tags
 useHead({

@@ -1,9 +1,8 @@
 <template>
-  <MainLayout>
-    <NuxtPage />
-  </MainLayout>
+  <div>
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
+  </div>
 </template>
-<script setup>
-import MainLayout from './layout/MainLayout.vue';
-
-</script>
+<script setup></script>

@@ -1,19 +1,8 @@
-import { computed, h, getCurrentInstance, ref, onBeforeUnmount, Transition, withDirectives } from 'vue';
-import { b as useSizeDefaults, u as useSizeProps, a as useSize, _ as __nuxt_component_2$1 } from './QIcon.mjs';
-import { c as createComponent, w as createDirective, s as stopAndPrevent, q as listenOpts, v as prevent, o as stop } from '../build/server.mjs';
+import { computed, getCurrentInstance, ref, onBeforeUnmount, h, Transition, withDirectives } from 'vue';
+import { u as useSizeProps, a as useSize, _ as __nuxt_component_2$1 } from './QIcon.mjs';
+import { i as isKeyCode, Q as QSpinner } from './QSpinner.mjs';
+import { q as createDirective, c as createComponent, s as stopAndPrevent, t as listenOpts, p as prevent, l as stop } from '../build/server.mjs';
 import { a as hMergeSlot } from './render.mjs';
-
-function shouldIgnoreKey (evt) {
-  return evt !== Object(evt)
-    || evt.isComposing === true
-    || evt.qKeyEvent === true
-}
-
-function isKeyCode (evt, keyCodes) {
-  return shouldIgnoreKey(evt) === true
-    ? false
-    : [].concat(keyCodes).includes(evt.keyCode)
-}
 
 // copied to docs too
 function getParentProxy (proxy) {
@@ -39,63 +28,6 @@ function vmHasRouter (vm) {
 function vmIsDestroyed (vm) {
   return vm.isUnmounted === true || vm.isDeactivated === true
 }
-
-const useSpinnerProps = {
-  size: {
-    type: [ String, Number ],
-    default: '1em'
-  },
-  color: String
-};
-
-function useSpinner (props) {
-  return {
-    cSize: computed(() => (
-      props.size in useSizeDefaults
-        ? `${ useSizeDefaults[ props.size ] }px`
-        : props.size
-    )),
-
-    classes: computed(() =>
-      'q-spinner' + (props.color ? ` text-${ props.color }` : '')
-    )
-  }
-}
-
-const QSpinner = createComponent({
-  name: 'QSpinner',
-
-  props: {
-    ...useSpinnerProps,
-
-    thickness: {
-      type: Number,
-      default: 5
-    }
-  },
-
-  setup (props) {
-    const { cSize, classes } = useSpinner(props);
-
-    return () => h('svg', {
-      class: classes.value + ' q-spinner-mat',
-      width: cSize.value,
-      height: cSize.value,
-      viewBox: '25 25 50 50'
-    }, [
-      h('circle', {
-        class: 'path',
-        cx: '50',
-        cy: '50',
-        r: '20',
-        fill: 'none',
-        stroke: 'currentColor',
-        'stroke-width': props.thickness,
-        'stroke-miterlimit': '10'
-      })
-    ])
-  }
-});
 
 const getSSRProps = () => ({});
 
@@ -1032,5 +964,5 @@ const __nuxt_component_0$1 = createComponent({
   }
 });
 
-export { QSpinner as Q, __nuxt_component_0$1 as _, useSpinner as a, __q_directive_0 as b, useRouterLinkProps as c, useRouterLink as d, vmHasRouter as e, getParentProxy as f, getBtnDesignAttr as g, isKeyCode as i, nonRoundBtnProps as n, shouldIgnoreKey as s, useSpinnerProps as u, vmIsDestroyed as v };
+export { __nuxt_component_0$1 as _, __q_directive_0 as a, vmHasRouter as b, getBtnDesignAttr as c, useRouterLink as d, getParentProxy as g, nonRoundBtnProps as n, useRouterLinkProps as u, vmIsDestroyed as v };
 //# sourceMappingURL=QBtn.mjs.map

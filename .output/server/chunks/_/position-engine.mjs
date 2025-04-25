@@ -1,6 +1,299 @@
-import { unref, getCurrentInstance, ref, nextTick, watch, onMounted, onBeforeUnmount, computed, onDeactivated } from 'vue';
-import { P as Platform, v as prevent, j as addEvt, i as cleanEvt, q as listenOpts, n as noop, c as createComponent, m as client } from '../build/server.mjs';
-import { i as isKeyCode, e as vmHasRouter, f as getParentProxy, v as vmIsDestroyed } from './QBtn.mjs';
+import { getCurrentInstance, onDeactivated, onBeforeUnmount, nextTick, watch, onMounted, computed, ref, unref } from 'vue';
+import { v as vmIsDestroyed, b as vmHasRouter, g as getParentProxy } from './QBtn.mjs';
+import { x as noop, c as createComponent, P as Platform, p as prevent, w as addEvt, v as cleanEvt, t as listenOpts, k as client } from '../build/server.mjs';
+import { i as isKeyCode } from './QSpinner.mjs';
+
+/*
+ * Usage:
+ *    registerTimeout(fn[, delay])
+ *    removeTimeout()
+ */
+
+function useTimeout () {
+  let timer = null;
+  const vm = getCurrentInstance();
+
+  function removeTimeout () {
+    if (timer !== null) {
+      clearTimeout(timer);
+      timer = null;
+    }
+  }
+
+  onDeactivated(removeTimeout);
+  onBeforeUnmount(removeTimeout);
+
+  return {
+    removeTimeout,
+
+    registerTimeout (fn, delay) {
+      removeTimeout();
+
+      if (vmIsDestroyed(vm) === false) {
+        timer = setTimeout(() => {
+          timer = null;
+          fn();
+        }, delay);
+      }
+    }
+  }
+}
+
+/*
+ * Usage:
+ *    registerTick(fn)
+ *    removeTick()
+ */
+
+function useTick () {
+  let tickFn;
+  const vm = getCurrentInstance();
+
+  function removeTick () {
+    tickFn = void 0;
+  }
+
+  onDeactivated(removeTick);
+  onBeforeUnmount(removeTick);
+
+  return {
+    removeTick,
+
+    registerTick (fn) {
+      tickFn = fn;
+
+      nextTick(() => {
+        if (tickFn === fn) {
+          // we also check if VM is destroyed, since if it
+          // got to trigger one nextTick() we cannot stop it
+          vmIsDestroyed(vm) === false && tickFn();
+          tickFn = void 0;
+        }
+      });
+    }
+  }
+}
+
+const useModelToggleProps = {
+  modelValue: {
+    type: Boolean,
+    default: null
+  },
+
+  'onUpdate:modelValue': [ Function, Array ]
+};
+
+const useModelToggleEmits = [
+  'beforeShow', 'show', 'beforeHide', 'hide'
+];
+
+// handleShow/handleHide -> removeTick(), self (& emit show)
+
+function useModelToggle ({
+  showing,
+  canShow, // optional
+  hideOnRouteChange, // optional
+  handleShow, // optional
+  handleHide, // optional
+  processOnMount // optional
+}) {
+  const vm = getCurrentInstance();
+  const { props, emit, proxy } = vm;
+
+  let payload;
+
+  function toggle (evt) {
+    if (showing.value === true) ;
+    else {
+      show(evt);
+    }
+  }
+
+  function show (evt) {
+    if (
+      props.disable === true
+      || (evt !== void 0 && evt.qAnchorHandled === true)
+      || (canShow !== void 0 && canShow(evt) !== true)
+    ) return
+
+    const listener = props[ 'onUpdate:modelValue' ] !== void 0;
+
+    if (props.modelValue === null || listener === false || true) {
+      processShow(evt);
+    }
+  }
+
+  function processShow (evt) {
+    if (showing.value === true) return
+
+    showing.value = true;
+
+    emit('beforeShow', evt);
+
+    if (handleShow !== void 0) {
+      handleShow(evt);
+    }
+    else {
+      emit('show', evt);
+    }
+  }
+
+  function hide (evt) {
+    return
+  }
+
+  function processHide (evt) {
+    if (showing.value === false) return
+
+    showing.value = false;
+
+    emit('beforeHide', evt);
+
+    if (handleHide !== void 0) {
+      handleHide(evt);
+    }
+    else {
+      emit('hide', evt);
+    }
+  }
+
+  function processModelChange (val) {
+    if (props.disable === true && val === true) {
+      if (props[ 'onUpdate:modelValue' ] !== void 0) {
+        emit('update:modelValue', false);
+      }
+    }
+    else if ((val === true) !== showing.value) {
+      const fn = val === true ? processShow : processHide;
+      fn(payload);
+    }
+  }
+
+  watch(() => props.modelValue, processModelChange);
+
+  if (hideOnRouteChange !== void 0 && vmHasRouter(vm) === true) {
+    watch(() => proxy.$route.fullPath, () => {
+      if (hideOnRouteChange.value === true && showing.value === true) ;
+    });
+  }
+
+  onMounted(() => {
+    processModelChange(props.modelValue);
+  });
+
+  // expose public methods
+  const publicMethods = { show, hide, toggle };
+  Object.assign(proxy, publicMethods);
+
+  return publicMethods
+}
+
+const useTransitionProps = {
+  transitionShow: {
+    type: String,
+    default: 'fade'
+  },
+
+  transitionHide: {
+    type: String,
+    default: 'fade'
+  },
+
+  transitionDuration: {
+    type: [ String, Number ],
+    default: 300
+  }
+};
+
+function useTransition (props, defaultShowFn = () => {}, defaultHideFn = () => {}) {
+  return {
+    transitionProps: computed(() => {
+      const show = `q-transition--${ props.transitionShow || defaultShowFn() }`;
+      const hide = `q-transition--${ props.transitionHide || defaultHideFn() }`;
+
+      return {
+        appear: true,
+
+        enterFromClass: `${ show }-enter-from`,
+        enterActiveClass: `${ show }-enter-active`,
+        enterToClass: `${ show }-enter-to`,
+
+        leaveFromClass: `${ hide }-leave-from`,
+        leaveActiveClass: `${ hide }-leave-active`,
+        leaveToClass: `${ hide }-leave-to`
+      }
+    }),
+
+    transitionStyle: computed(() => `--q-transition-duration: ${ props.transitionDuration }ms`)
+  }
+}
+
+const portalProxyList = [];
+
+function closePortalMenus (proxy, evt) {
+  do {
+    if (proxy.$options.name === 'QMenu') {
+      proxy.hide(evt);
+
+      // is this a point of separation?
+      if (proxy.$props.separateClosePopup === true) {
+        return getParentProxy(proxy)
+      }
+    }
+    else if (proxy.__qPortal === true) {
+      // treat it as point of separation if parent is QPopupProxy
+      // (so mobile matches desktop behavior)
+      // and hide it too
+      const parent = getParentProxy(proxy);
+
+      if (parent !== void 0 && parent.$options.name === 'QPopupProxy') {
+        proxy.hide(evt);
+        return parent
+      }
+      else {
+        return proxy
+      }
+    }
+
+    proxy = getParentProxy(proxy);
+  } while (proxy !== void 0 && proxy !== null)
+}
+
+/**
+ * Noop internal component to ease testing
+ * of the teleported content.
+ *
+ * const wrapper = mount(QDialog, { ... })
+ * const teleportedWrapper = wrapper.findComponent({ name: 'QPortal' })
+ */
+createComponent({
+  name: 'QPortal',
+  setup (_, { slots }) {
+    return () => slots.default()
+  }
+});
+
+// Warning!
+// You MUST specify "inheritAttrs: false" in your component
+
+function usePortal (vm, innerRef, renderPortalContent, type) {
+  // showing, including while in show/hide transition
+  const portalIsActive = ref(false);
+
+  // showing & not in any show/hide transition
+  const portalIsAccessible = ref(false);
+
+  {
+    return {
+      portalIsActive,
+      portalIsAccessible,
+
+      showPortal: noop,
+      hidePortal: noop,
+      renderPortal: noop
+    }
+  }
+}
 
 function css (element, css) {
   const style = element.style;
@@ -44,6 +337,104 @@ function childHasFocus (el, focusedEl) {
   }
 
   return false
+}
+
+const scrollTargetProp = {} /* SSR does not know about Element */
+  ;
+
+const scrollTargets = []
+  ;
+
+function getScrollTarget (el, targetEl) {
+  let target = getElement(targetEl);
+
+  if (target === void 0) {
+    if (el === void 0 || el === null) {
+      return window
+    }
+
+    target = el.closest('.scroll,.scroll-y,.overflow-auto');
+  }
+
+  return scrollTargets.includes(target)
+    ? window
+    : target
+}
+
+function getVerticalScrollPosition (scrollTarget) {
+  return scrollTarget === window
+    ? window.pageYOffset || window.scrollY || document.body.scrollTop || 0
+    : scrollTarget.scrollTop
+}
+
+function getHorizontalScrollPosition (scrollTarget) {
+  return scrollTarget === window
+    ? window.pageXOffset || window.scrollX || document.body.scrollLeft || 0
+    : scrollTarget.scrollLeft
+}
+
+let size;
+function getScrollbarWidth () {
+  if (size !== undefined) {
+    return size
+  }
+
+  const
+    inner = document.createElement('p'),
+    outer = document.createElement('div');
+
+  css(inner, {
+    width: '100%',
+    height: '200px'
+  });
+  css(outer, {
+    position: 'absolute',
+    top: '0px',
+    left: '0px',
+    visibility: 'hidden',
+    width: '200px',
+    height: '150px',
+    overflow: 'hidden'
+  });
+
+  outer.appendChild(inner);
+
+  document.body.appendChild(outer);
+
+  const w1 = inner.offsetWidth;
+  outer.style.overflow = 'scroll';
+  let w2 = inner.offsetWidth;
+
+  if (w1 === w2) {
+    w2 = outer.clientWidth;
+  }
+
+  outer.remove();
+  size = w1 - w2;
+
+  return size
+}
+
+function hasScrollbar (el, onY = true) {
+  if (!el || el.nodeType !== Node.ELEMENT_NODE) {
+    return false
+  }
+
+  return onY
+    ? (
+        el.scrollHeight > el.clientHeight && (
+          el.classList.contains('scroll')
+          || el.classList.contains('overflow-auto')
+          || [ 'auto', 'scroll' ].includes(window.getComputedStyle(el)[ 'overflow-y' ])
+        )
+      )
+    : (
+        el.scrollWidth > el.clientWidth && (
+          el.classList.contains('scroll')
+          || el.classList.contains('overflow-auto')
+          || [ 'auto', 'scroll' ].includes(window.getComputedStyle(el)[ 'overflow-x' ])
+        )
+      )
 }
 
 function clearSelection () {
@@ -316,374 +707,6 @@ function useScrollTarget (props, configureScrollTarget) {
     unconfigureScrollTarget,
     changeScrollEvent
   }
-}
-
-const useModelToggleProps = {
-  modelValue: {
-    type: Boolean,
-    default: null
-  },
-
-  'onUpdate:modelValue': [ Function, Array ]
-};
-
-const useModelToggleEmits = [
-  'beforeShow', 'show', 'beforeHide', 'hide'
-];
-
-// handleShow/handleHide -> removeTick(), self (& emit show)
-
-function useModelToggle ({
-  showing,
-  canShow, // optional
-  hideOnRouteChange, // optional
-  handleShow, // optional
-  handleHide, // optional
-  processOnMount // optional
-}) {
-  const vm = getCurrentInstance();
-  const { props, emit, proxy } = vm;
-
-  let payload;
-
-  function toggle (evt) {
-    if (showing.value === true) ;
-    else {
-      show(evt);
-    }
-  }
-
-  function show (evt) {
-    if (
-      props.disable === true
-      || (evt !== void 0 && evt.qAnchorHandled === true)
-      || (canShow !== void 0 && canShow(evt) !== true)
-    ) return
-
-    const listener = props[ 'onUpdate:modelValue' ] !== void 0;
-
-    if (props.modelValue === null || listener === false || true) {
-      processShow(evt);
-    }
-  }
-
-  function processShow (evt) {
-    if (showing.value === true) return
-
-    showing.value = true;
-
-    emit('beforeShow', evt);
-
-    if (handleShow !== void 0) {
-      handleShow(evt);
-    }
-    else {
-      emit('show', evt);
-    }
-  }
-
-  function hide (evt) {
-    return
-  }
-
-  function processHide (evt) {
-    if (showing.value === false) return
-
-    showing.value = false;
-
-    emit('beforeHide', evt);
-
-    if (handleHide !== void 0) {
-      handleHide(evt);
-    }
-    else {
-      emit('hide', evt);
-    }
-  }
-
-  function processModelChange (val) {
-    if (props.disable === true && val === true) {
-      if (props[ 'onUpdate:modelValue' ] !== void 0) {
-        emit('update:modelValue', false);
-      }
-    }
-    else if ((val === true) !== showing.value) {
-      const fn = val === true ? processShow : processHide;
-      fn(payload);
-    }
-  }
-
-  watch(() => props.modelValue, processModelChange);
-
-  if (hideOnRouteChange !== void 0 && vmHasRouter(vm) === true) {
-    watch(() => proxy.$route.fullPath, () => {
-      if (hideOnRouteChange.value === true && showing.value === true) ;
-    });
-  }
-
-  onMounted(() => {
-    processModelChange(props.modelValue);
-  });
-
-  // expose public methods
-  const publicMethods = { show, hide, toggle };
-  Object.assign(proxy, publicMethods);
-
-  return publicMethods
-}
-
-const portalProxyList = [];
-
-function closePortalMenus (proxy, evt) {
-  do {
-    if (proxy.$options.name === 'QMenu') {
-      proxy.hide(evt);
-
-      // is this a point of separation?
-      if (proxy.$props.separateClosePopup === true) {
-        return getParentProxy(proxy)
-      }
-    }
-    else if (proxy.__qPortal === true) {
-      // treat it as point of separation if parent is QPopupProxy
-      // (so mobile matches desktop behavior)
-      // and hide it too
-      const parent = getParentProxy(proxy);
-
-      if (parent !== void 0 && parent.$options.name === 'QPopupProxy') {
-        proxy.hide(evt);
-        return parent
-      }
-      else {
-        return proxy
-      }
-    }
-
-    proxy = getParentProxy(proxy);
-  } while (proxy !== void 0 && proxy !== null)
-}
-
-/**
- * Noop internal component to ease testing
- * of the teleported content.
- *
- * const wrapper = mount(QDialog, { ... })
- * const teleportedWrapper = wrapper.findComponent({ name: 'QPortal' })
- */
-createComponent({
-  name: 'QPortal',
-  setup (_, { slots }) {
-    return () => slots.default()
-  }
-});
-
-// Warning!
-// You MUST specify "inheritAttrs: false" in your component
-
-function usePortal (vm, innerRef, renderPortalContent, type) {
-  // showing, including while in show/hide transition
-  const portalIsActive = ref(false);
-
-  // showing & not in any show/hide transition
-  const portalIsAccessible = ref(false);
-
-  {
-    return {
-      portalIsActive,
-      portalIsAccessible,
-
-      showPortal: noop,
-      hidePortal: noop,
-      renderPortal: noop
-    }
-  }
-}
-
-const useTransitionProps = {
-  transitionShow: {
-    type: String,
-    default: 'fade'
-  },
-
-  transitionHide: {
-    type: String,
-    default: 'fade'
-  },
-
-  transitionDuration: {
-    type: [ String, Number ],
-    default: 300
-  }
-};
-
-function useTransition (props, defaultShowFn = () => {}, defaultHideFn = () => {}) {
-  return {
-    transitionProps: computed(() => {
-      const show = `q-transition--${ props.transitionShow || defaultShowFn() }`;
-      const hide = `q-transition--${ props.transitionHide || defaultHideFn() }`;
-
-      return {
-        appear: true,
-
-        enterFromClass: `${ show }-enter-from`,
-        enterActiveClass: `${ show }-enter-active`,
-        enterToClass: `${ show }-enter-to`,
-
-        leaveFromClass: `${ hide }-leave-from`,
-        leaveActiveClass: `${ hide }-leave-active`,
-        leaveToClass: `${ hide }-leave-to`
-      }
-    }),
-
-    transitionStyle: computed(() => `--q-transition-duration: ${ props.transitionDuration }ms`)
-  }
-}
-
-/*
- * Usage:
- *    registerTick(fn)
- *    removeTick()
- */
-
-function useTick () {
-  let tickFn;
-  const vm = getCurrentInstance();
-
-  function removeTick () {
-    tickFn = void 0;
-  }
-
-  onDeactivated(removeTick);
-  onBeforeUnmount(removeTick);
-
-  return {
-    removeTick,
-
-    registerTick (fn) {
-      tickFn = fn;
-
-      nextTick(() => {
-        if (tickFn === fn) {
-          // we also check if VM is destroyed, since if it
-          // got to trigger one nextTick() we cannot stop it
-          vmIsDestroyed(vm) === false && tickFn();
-          tickFn = void 0;
-        }
-      });
-    }
-  }
-}
-
-/*
- * Usage:
- *    registerTimeout(fn[, delay])
- *    removeTimeout()
- */
-
-function useTimeout () {
-  let timer = null;
-  const vm = getCurrentInstance();
-
-  function removeTimeout () {
-    if (timer !== null) {
-      clearTimeout(timer);
-      timer = null;
-    }
-  }
-
-  onDeactivated(removeTimeout);
-  onBeforeUnmount(removeTimeout);
-
-  return {
-    removeTimeout,
-
-    registerTimeout (fn, delay) {
-      removeTimeout();
-
-      if (vmIsDestroyed(vm) === false) {
-        timer = setTimeout(() => {
-          timer = null;
-          fn();
-        }, delay);
-      }
-    }
-  }
-}
-
-const scrollTargetProp = {} /* SSR does not know about Element */
-  ;
-
-const scrollTargets = []
-  ;
-
-function getScrollTarget (el, targetEl) {
-  let target = getElement(targetEl);
-
-  if (target === void 0) {
-    if (el === void 0 || el === null) {
-      return window
-    }
-
-    target = el.closest('.scroll,.scroll-y,.overflow-auto');
-  }
-
-  return scrollTargets.includes(target)
-    ? window
-    : target
-}
-
-function getVerticalScrollPosition (scrollTarget) {
-  return scrollTarget === window
-    ? window.pageYOffset || window.scrollY || document.body.scrollTop || 0
-    : scrollTarget.scrollTop
-}
-
-function getHorizontalScrollPosition (scrollTarget) {
-  return scrollTarget === window
-    ? window.pageXOffset || window.scrollX || document.body.scrollLeft || 0
-    : scrollTarget.scrollLeft
-}
-
-let size;
-function getScrollbarWidth () {
-  if (size !== undefined) {
-    return size
-  }
-
-  const
-    inner = document.createElement('p'),
-    outer = document.createElement('div');
-
-  css(inner, {
-    width: '100%',
-    height: '200px'
-  });
-  css(outer, {
-    position: 'absolute',
-    top: '0px',
-    left: '0px',
-    visibility: 'hidden',
-    width: '200px',
-    height: '150px',
-    overflow: 'hidden'
-  });
-
-  outer.appendChild(inner);
-
-  document.body.appendChild(outer);
-
-  const w1 = inner.offsetWidth;
-  outer.style.overflow = 'scroll';
-  let w2 = inner.offsetWidth;
-
-  if (w1 === w2) {
-    w2 = outer.clientWidth;
-  }
-
-  outer.remove();
-  size = w1 - w2;
-
-  return size
 }
 
 const

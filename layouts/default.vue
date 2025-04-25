@@ -1,6 +1,6 @@
 <template>
   <q-layout>
-    <q-page-container>
+    <q-page-container class="p-0">
       <q-page>
         <!-- navbar -->
         <Navbar />

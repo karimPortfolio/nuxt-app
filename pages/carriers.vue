@@ -20,7 +20,7 @@
   </div>
 </template>
 <script setup>
-const { data } = await useFetch("/api/jobs");
+const { data } = await useFetch("/api/v1/jobs");
 
 useSeoMeta({
   title: "Carriers",

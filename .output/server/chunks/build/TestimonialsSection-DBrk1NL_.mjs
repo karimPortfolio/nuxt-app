@@ -18,6 +18,7 @@ import 'devalue';
 import '@unhead/ssr';
 import 'unhead';
 import '@unhead/shared';
+import 'pinia';
 import 'vue-router';
 import '@prisma/client';
 import '../_/render.mjs';

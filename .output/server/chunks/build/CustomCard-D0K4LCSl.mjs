@@ -1,6 +1,6 @@
 import { mergeProps, withCtx, renderSlot, createVNode, withDirectives, vShow, toDisplayString, defineComponent, computed, ref, watch, withAsyncContext, useSSRContext } from 'vue';
 import { ssrRenderComponent, ssrRenderSlot, ssrRenderStyle, ssrInterpolate, ssrRenderAttrs, ssrRenderAttr } from 'vue/server-renderer';
-import { _ as _export_sfc, a as useRuntimeConfig } from './server.mjs';
+import { _ as _export_sfc, b as useRuntimeConfig } from './server.mjs';
 import { _ as __nuxt_component_0$1, a as __nuxt_component_4 } from '../_/QCardSection.mjs';
 
 const cache = /* @__PURE__ */ new Map();

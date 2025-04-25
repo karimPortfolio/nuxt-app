@@ -1,10 +1,10 @@
 import { ref, onMounted, watch, computed, getCurrentInstance, onBeforeUpdate, inject, onBeforeUnmount, nextTick, onDeactivated, onActivated, h, Transition } from 'vue';
 import { _ as __nuxt_component_2$1 } from './QIcon.mjs';
-import { Q as QSpinner, s as shouldIgnoreKey } from './QBtn.mjs';
-import { r as isRuntimeSsrPreHydration, f as formKey, s as stopAndPrevent, v as prevent, m as client, c as createComponent, o as stop } from '../build/server.mjs';
+import { Q as QSpinner, s as shouldIgnoreKey } from './QSpinner.mjs';
+import { j as isRuntimeSsrPreHydration, f as formKey, s as stopAndPrevent, p as prevent, k as client, c as createComponent, l as stop } from '../build/server.mjs';
 import { u as useDarkProps, a as useDark } from './use-dark.mjs';
 import { h as hSlot } from './render.mjs';
-import { u as useFormProps, c as useFormInputNameAttr } from './private.use-form.mjs';
+import { u as useFormProps, b as useFormInputNameAttr } from './private.use-form.mjs';
 
 function injectProp (target, propName, get, set) {
   Object.defineProperty(target, propName, {
@@ -13,36 +13,6 @@ function injectProp (target, propName, get, set) {
     enumerable: true
   });
   return target
-}
-
-function debounce (fn, wait = 250, immediate) {
-  let timer = null;
-
-  function debounced (/* ...args */) {
-    const args = arguments;
-
-    const later = () => {
-      timer = null;
-      {
-        fn.apply(this, args);
-      }
-    };
-
-    if (timer !== null) {
-      clearTimeout(timer);
-    }
-    else if (immediate === true) {
-      fn.apply(this, args);
-    }
-
-    timer = setTimeout(later, wait);
-  }
-
-  debounced.cancel = () => {
-    timer !== null && clearTimeout(timer);
-  };
-
-  return debounced
 }
 
 let queue = [];
@@ -284,6 +254,36 @@ const testPattern = {
   hexaOrRgbaColor: v => hexa.test(v) || rgba.test(v),
   anyColor: v => hexOrHexa.test(v) || rgb.test(v) || rgba.test(v)
 };
+
+function debounce (fn, wait = 250, immediate) {
+  let timer = null;
+
+  function debounced (/* ...args */) {
+    const args = arguments;
+
+    const later = () => {
+      timer = null;
+      {
+        fn.apply(this, args);
+      }
+    };
+
+    if (timer !== null) {
+      clearTimeout(timer);
+    }
+    else if (immediate === true) {
+      fn.apply(this, args);
+    }
+
+    timer = setTimeout(later, wait);
+  }
+
+  debounced.cancel = () => {
+    timer !== null && clearTimeout(timer);
+  };
+
+  return debounced
+}
 
 const lazyRulesValues = [ true, false, 'ondemand' ];
 

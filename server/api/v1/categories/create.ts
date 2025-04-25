@@ -1,7 +1,8 @@
 import prisma from "~/lib/prisma";
+import { defineProtectedHandler } from "~/utils/defineProtectedhandler";
 
 
-export default defineEventHandler(async (event) => {
+export default defineProtectedHandler(async (event) => {
     const body = await readBody(event);
 
     if (!body) return setResponseStatus(event, 422, 'No body provided');

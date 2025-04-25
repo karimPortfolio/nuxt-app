@@ -180,15 +180,101 @@
       </div>
 
       <!-- Auth Button -->
-      <q-btn
-        unelevated
-        no-caps
-        to="/auth/signin"
-        class="ml-4 hidden md:flex bg-gradient-to-r from-yellow-400 to-yellow-500 text-blue-900 font-medium hover:from-yellow-300 hover:to-yellow-400 rounded-full px-5 py-2 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg"
-      >
-        <q-icon name="login" class="q-mr-sm" />
-        Sign In
-      </q-btn>
+      <div>
+        <!-- <q-btn
+          v-if="!isAuthenticated"
+          unelevated
+          no-caps
+          to="auth/signin"
+          class="ml-4 hidden md:flex bg-gradient-to-r from-yellow-400 to-yellow-500 text-blue-900 font-medium hover:from-yellow-300 hover:to-yellow-400 rounded-full px-5 py-2 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg"
+        >
+          <q-icon name="login" class="q-mr-sm" />
+          Sign In
+        </q-btn> -->
+        <!-- ============= USER PROFILE DROPDOWN ============== -->
+        <!-- User Profile Dropdown -->
+        <div class="relative">
+          <q-btn flat round no-caps class="bg-white/15 backdrop-blur-sm hover:bg-white/25 transition-all duration-300">
+            <q-avatar size="32px" class="shadow-sm">
+              <img :src="user?.photoURL || 'https://ui-avatars.com/api/?name=' + (user?.displayName || 'User')" />
+            </q-avatar>
+            
+            <q-menu class="bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-200/50 py-2 w-72" transition-show="jump-down" transition-hide="jump-up">
+              <!-- User Info Header -->
+              <div class="px-4 py-3 border-b border-gray-100">
+                <div class="flex items-center space-x-3">
+                  <q-avatar size="48px" class=" shadow-md">
+                    <img :src="user?.photoURL || 'https://ui-avatars.com/api/?name=' + (user?.displayName || 'User')" />
+                  </q-avatar>
+                  <div class="flex flex-col">
+                    <span class="font-medium text-gray-800">{{ user?.displayName || 'User' }}</span>
+                    <span class="text-sm text-blue-600 truncate max-w-[180px]">{{ user?.email }}</span>
+                  </div>
+                </div>
+                <div class="mt-2 bg-blue-50 rounded-lg px-3 py-1.5 text-sm text-blue-700 flex items-center">
+                  <q-icon name="verified" size="xs" color="blue-7" class="mr-1" />
+                  <span>Verified Account</span>
+                </div>
+              </div>
+              
+              <!-- Menu Items -->
+              <q-list padding>
+                <q-item clickable v-ripple to="/profile" class="hover:bg-blue-50/80 rounded-lg mx-1 my-0.5 transition-all duration-300 hover:translate-x-1 group">
+                  <q-item-section avatar>
+                    <q-icon name="person" class="text-blue-600 bg-blue-100 p-1 rounded-full group-hover:bg-blue-200 transition-colors" />
+                  </q-item-section>
+                  <q-item-section>My Profile</q-item-section>
+                  <q-item-section side>
+                    <q-icon name="chevron_right" size="xs" class="text-gray-400 group-hover:text-blue-500 transform group-hover:translate-x-1 transition-transform" />
+                  </q-item-section>
+                </q-item>
+                
+                <q-item clickable v-ripple to="/dashboard" class="hover:bg-indigo-50/80 rounded-lg mx-1 my-0.5 transition-all duration-300 hover:translate-x-1 group">
+                  <q-item-section avatar>
+                    <q-icon name="dashboard" class="text-indigo-600 bg-indigo-100 p-1 rounded-full group-hover:bg-indigo-200 transition-colors" />
+                  </q-item-section>
+                  <q-item-section>Dashboard</q-item-section>
+                  <q-item-section side>
+                    <q-icon name="chevron_right" size="xs" class="text-gray-400 group-hover:text-indigo-500 transform group-hover:translate-x-1 transition-transform" />
+                  </q-item-section>
+                </q-item>
+                
+                <q-item clickable v-ripple to="/settings" class="hover:bg-purple-50/80 rounded-lg mx-1 my-0.5 transition-all duration-300 hover:translate-x-1 group">
+                  <q-item-section avatar>
+                    <q-icon name="settings" class="text-purple-600 bg-purple-100 p-1 rounded-full group-hover:bg-purple-200 transition-colors" />
+                  </q-item-section>
+                  <q-item-section>Settings</q-item-section>
+                  <q-item-section side>
+                    <q-icon name="chevron_right" size="xs" class="text-gray-400 group-hover:text-purple-500 transform group-hover:translate-x-1 transition-transform" />
+                  </q-item-section>
+                </q-item>
+                
+                <q-separator class="my-1" />
+                
+                <q-item clickable v-ripple @click="useAuthStore().signOut" class="hover:bg-red-50/80 rounded-lg mx-1 my-0.5 transition-all duration-300 hover:translate-x-1 group">
+                  <q-item-section avatar>
+                    <q-icon name="logout" class="text-red-600 bg-red-100 p-1 rounded-full group-hover:bg-red-200 transition-colors" />
+                  </q-item-section>
+                  <q-item-section>Sign Out</q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
+          </q-btn>
+        </div>
+
+        <!-- Sign In Button (when not authenticated) -->
+        <!-- <q-btn
+          v-else
+          unelevated
+          no-caps
+          to="/auth/signin"
+          class="ml-4 hidden md:flex bg-gradient-to-r from-yellow-400 to-yellow-500 text-blue-900 font-medium hover:from-yellow-300 hover:to-yellow-400 rounded-full px-5 py-2 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg"
+        >
+          <q-icon name="login" class="q-mr-sm" />
+          Sign In
+        </q-btn> -->
+        <!-- ============= USER PROFILE DROPDOWN ============== -->
+      </div>
 
       <!-- mobile -->
       <q-btn
@@ -253,4 +339,13 @@
     </q-toolbar>
   </q-header>
 </template>
-<script setup></script>
+<script setup>
+import { useAuthStore } from '~/store/auth';
+
+
+const { user, isAuthenticated } = useAuthStore();
+
+watch( () => isAuthenticated, (auth) => {
+  console.log('User changed:', auth.value);
+}, { immediate: true });
+</script>

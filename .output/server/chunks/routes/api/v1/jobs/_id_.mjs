@@ -1,4 +1,4 @@
-import { c as defineEventHandler, g as getRouterParam, e as setResponseStatus } from '../../../../_/nitro.mjs';
+import { c as defineEventHandler, k as getRouterParam, e as setResponseStatus } from '../../../../_/nitro.mjs';
 import { jobs } from '../../data.mjs';
 import 'node:http';
 import 'node:https';

@@ -27,5 +27,5 @@ function useFormInputNameAttr (props) {
   return computed(() => props.name || props.for)
 }
 
-export { useFormInject as a, useFormAttrs as b, useFormInputNameAttr as c, useFormProps as u };
+export { useFormInject as a, useFormInputNameAttr as b, useFormAttrs as c, useFormProps as u };
 //# sourceMappingURL=private.use-form.mjs.map

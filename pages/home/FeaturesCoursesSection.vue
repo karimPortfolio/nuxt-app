@@ -66,7 +66,7 @@
                         </q-btn>
                     </div>
                     
-                    <q-btn unelevated rounded class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all font-medium text-base">
+                    <q-btn @click="handleCourseEnrolling(course)" unelevated rounded class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all font-medium text-base">
                         <span class="relative z-10">Enroll Now</span>
                         <q-ripple />
                     </q-btn>
@@ -78,11 +78,24 @@
 </template>
 
 <script setup>
+import { is } from 'quasar';
+import { useAuthStore } from '~/store/auth';
+
 const rating = ref(4.5);
 const currentPage = ref(1);
 
 
 const { data:courses } = await useFetch('/api/v1/courses');
+
+const { isAuthenticated } = useAuthStore();
+
+const handleCourseEnrolling = (course) => {
+    if (!isAuthenticated.value)
+        return navigateTo(`/auth/signin?redirect_to=${window.location.origin}/courses/${course.id}`);
+
+    // Logic to enroll in the course
+    return navigateTo(`/courses/${course.id}`);
+}
 
 </script>
 <script setup

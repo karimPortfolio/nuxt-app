@@ -306,6 +306,11 @@ import FeaturesCoursesSection from "./home/FeaturesCoursesSection.vue";
 import CTASection from "./home/CTASection.vue";
 import TestimonialsSection from "./home/TestimonialsSection.vue";
 
+
+definePageMeta({
+  // middleware: ["auth"],
+})
+
 //add seo meta tags
 useHead({
   title: "Online Learning Platform | Expand Your Knowledge",

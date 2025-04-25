@@ -1,7 +1,10 @@
-@import "tailwindcss";
-@config "../../tailwind.config.js";
+@import "tailwindcss" important;
 
 p
 {
     margin: 0 !important;
+}
+
+@theme {
+    --color-primary: var(--color-purple-600);
 }

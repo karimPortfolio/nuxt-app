@@ -1,6 +1,7 @@
 import { markRaw, defineComponent, inject, hasInjectionContext, getCurrentInstance, ref, watchEffect, watch, unref, version, defineAsyncComponent, h, computed, provide, shallowReactive, Suspense, Fragment, createApp, toRef, onErrorCaptured, onServerPrefetch, createVNode, resolveDynamicComponent, reactive, effectScope, shallowRef, isReadonly, isRef, isShallow, isReactive, toRaw, mergeProps, getCurrentScope, withCtx, nextTick, useSSRContext } from 'vue';
-import { i as createError$1, n as hasProtocol, o as isScriptProtocol, p as joinURL, w as withQuery, q as sanitizeStatusCode, v as getContext, $ as $fetch, x as createHooks, y as defuFn, z as toRouteMatcher, A as createRouter$1, B as defu, C as klona } from '../_/nitro.mjs';
+import { h as createError$1, q as hasProtocol, v as isScriptProtocol, w as joinURL, x as withQuery, y as sanitizeStatusCode, z as getContext, $ as $fetch, A as createHooks, B as defuFn, C as toRouteMatcher, D as createRouter$1, E as defu, F as klona } from '../_/nitro.mjs';
 import { b as baseURL } from '../routes/renderer.mjs';
+import { createPinia, setActivePinia, shouldHydrate } from 'pinia';
 import { getActiveHead, CapoPlugin } from 'unhead';
 import { defineHeadPlugin, composableNames, unpackMeta } from '@unhead/shared';
 import { useRoute as useRoute$1, RouterView, createMemoryHistory, createRouter, START_LOCATION } from 'vue-router';
@@ -229,6 +230,56 @@ const iconSet = {
     removeUploaded: 'done_all'
   }
 };
+
+function createComponent (raw) { return markRaw(defineComponent(raw)) }
+function createDirective (raw) { return markRaw(raw) }
+
+const createReactivePlugin = (state, plugin) => {
+      Object.assign(plugin, state);
+      return plugin
+    }
+  ;
+
+const Plugin$2 = createReactivePlugin({
+  isActive: false,
+  mode: false
+}, {
+  __media: void 0,
+
+  set (val) {
+    return
+  },
+
+  toggle () {
+  },
+
+  install ({ $q, ssrContext }) {
+    const { dark } = $q.config;
+
+    {
+      this.isActive = dark === true;
+
+      $q.dark = {
+        isActive: false,
+        mode: false,
+        set: val => {
+          ssrContext._meta.bodyClasses = ssrContext._meta.bodyClasses
+            .replace(' body--light', '')
+            .replace(' body--dark', '') + ` body--${ val === true ? 'dark' : 'light' }`;
+
+          $q.dark.isActive = val === true;
+          $q.dark.mode = val;
+        },
+        toggle: () => {
+          $q.dark.set($q.dark.isActive === false);
+        }
+      };
+
+      $q.dark.set(dark);
+      return
+    }
+  }
+});
 
 /* eslint-disable no-useless-escape */
 
@@ -482,15 +533,6 @@ const Platform = {
   };
 }
 
-function createComponent (raw) { return markRaw(defineComponent(raw)) }
-function createDirective (raw) { return markRaw(raw) }
-
-const createReactivePlugin = (state, plugin) => {
-      Object.assign(plugin, state);
-      return plugin
-    }
-  ;
-
 const listenOpts = {
   hasPassive: false,
   passiveCapture: true,
@@ -533,6 +575,30 @@ function position (e) {
   }
 }
 
+function getEventPath (e) {
+  if (e.path) {
+    return e.path
+  }
+  if (e.composedPath) {
+    return e.composedPath()
+  }
+
+  const path = [];
+  let el = e.target;
+
+  while (el) {
+    path.push(el);
+
+    if (el.tagName === 'HTML') {
+      path.push(document);
+      path.push(window);
+      return path
+    }
+
+    el = el.parentElement;
+  }
+}
+
 function stop (e) {
   e.stopPropagation();
 }
@@ -567,6 +633,29 @@ function cleanEvt (ctx, targetName) {
     });
     ctx[ name ] = void 0;
   }
+}
+
+const History = {
+  __history: [],
+  add: noop,
+  remove: noop,
+
+  install ({ $q }) {
+    return
+  }
+};
+
+const quasarKey = '_q_';
+const layoutKey = '_q_l_';
+const pageContainerKey = '_q_pc_';
+const formKey = '_q_fo_';
+
+function emptyRenderFn () {}
+
+// not perfect, but what we ARE interested is for Arrays not to slip in
+// as spread operator will mess things up in various areas
+function isObject (v) {
+  return v !== null && typeof v === 'object' && Array.isArray(v) !== true
 }
 
 const { passive } = listenOpts;
@@ -609,47 +698,6 @@ const Screen = createReactivePlugin({
     $q.screen = this;
 
     return
-  }
-});
-
-const Plugin$2 = createReactivePlugin({
-  isActive: false,
-  mode: false
-}, {
-  __media: void 0,
-
-  set (val) {
-    return
-  },
-
-  toggle () {
-  },
-
-  install ({ $q, ssrContext }) {
-    const { dark } = $q.config;
-
-    {
-      this.isActive = dark === true;
-
-      $q.dark = {
-        isActive: false,
-        mode: false,
-        set: val => {
-          ssrContext._meta.bodyClasses = ssrContext._meta.bodyClasses
-            .replace(' body--light', '')
-            .replace(' body--dark', '') + ` body--${ val === true ? 'dark' : 'light' }`;
-
-          $q.dark.isActive = val === true;
-          $q.dark.mode = val;
-        },
-        toggle: () => {
-          $q.dark.set($q.dark.isActive === false);
-        }
-      };
-
-      $q.dark.set(dark);
-      return
-    }
   }
 });
 
@@ -717,16 +765,6 @@ const Body = {
 
       return
     }
-  }
-};
-
-const History = {
-  __history: [],
-  add: noop,
-  remove: noop,
-
-  install ({ $q }) {
-    return
   }
 };
 
@@ -837,19 +875,6 @@ const Plugin = createReactivePlugin({
   }
 });
 
-const quasarKey = '_q_';
-const layoutKey = '_q_l_';
-const pageContainerKey = '_q_pc_';
-const formKey = '_q_fo_';
-
-function emptyRenderFn () {}
-
-// not perfect, but what we ARE interested is for Arrays not to slip in
-// as spread operator will mess things up in various areas
-function isObject (v) {
-  return v !== null && typeof v === 'object' && Array.isArray(v) !== true
-}
-
 /**
  * If the list below changes, make sure
  * to also edit /ui/testing/specs/generators/generator.plugin.js
@@ -945,6 +970,46 @@ const installQuasar = function (parentApp, opts = {}, ssrContext) {
       ssrContext
     });
   }
+
+const ssrAPI = {
+  onOk: () => ssrAPI,
+  onCancel: () => ssrAPI,
+  onDismiss: () => ssrAPI,
+  hide: () => ssrAPI,
+  update: () => ssrAPI
+};
+
+function globalDialog (DefaultComponent, supportsCustomComponent, parentApp) {
+  return pluginProps => {
+    { return ssrAPI }
+  }
+}
+
+const Dialog = {
+  install ({ $q, parentApp }) {
+    $q.dialog = this.create = globalDialog();
+  }
+};
+
+const Notify = {
+  setDefaults (opts) {
+  },
+
+  registerType (typeName, typeOpts) {
+  },
+
+  install ({ $q, parentApp }) {
+    $q.notify = this.create = noop
+      ;
+
+    $q.notify.setDefaults = this.setDefaults;
+    $q.notify.registerType = this.registerType;
+
+    if ($q.config.notify !== void 0) {
+      this.setDefaults($q.config.notify);
+    }
+  }
+};
 
 const Quasar = {
   name: 'Quasar',
@@ -1158,6 +1223,7 @@ function defineNuxtPlugin(plugin2) {
   return Object.assign(plugin2.setup || (() => {
   }), plugin2, { [NuxtPluginIndicator]: true, _name });
 }
+const definePayloadPlugin = defineNuxtPlugin;
 function callWithNuxt(nuxt, setup, args) {
   const fn = () => setup();
   const nuxtAppCtx = getNuxtAppCtx(nuxt._id);
@@ -1415,6 +1481,28 @@ function useSeoMeta(input, options) {
     }
   });
 }
+async function getRouteRules(arg) {
+  const path = typeof arg === "string" ? arg : arg.path;
+  {
+    useNuxtApp().ssrContext._preloadManifest = true;
+    const _routeRulesMatcher = toRouteMatcher(
+      createRouter$1({ routes: (/* @__PURE__ */ useRuntimeConfig()).nitro.routeRules })
+    );
+    return defu({}, ..._routeRulesMatcher.matchAll(path).reverse());
+  }
+}
+function definePayloadReducer(name, reduce) {
+  {
+    useNuxtApp().ssrContext._payloadReducers[name] = reduce;
+  }
+}
+const payloadPlugin = definePayloadPlugin(() => {
+  definePayloadReducer(
+    "skipHydrate",
+    // We need to return something truthy to be treated as a match
+    (data) => !shouldHydrate(data) && 1
+  );
+});
 [CapoPlugin({ track: true })];
 const unhead_KgADcZ0jPj = /* @__PURE__ */ defineNuxtPlugin({
   name: "nuxt:head",
@@ -1564,21 +1652,13 @@ const generateRouteKey$1 = (routeProps, override) => {
 function toArray(value) {
   return Array.isArray(value) ? value : [value];
 }
-async function getRouteRules(arg) {
-  const path = typeof arg === "string" ? arg : arg.path;
-  {
-    useNuxtApp().ssrContext._preloadManifest = true;
-    const _routeRulesMatcher = toRouteMatcher(
-      createRouter$1({ routes: (/* @__PURE__ */ useRuntimeConfig()).nitro.routeRules })
-    );
-    return defu({}, ..._routeRulesMatcher.matchAll(path).reverse());
-  }
-}
 const __nuxt_page_meta$1 = {
-  layout: false
+  layout: false,
+  middleware: "auth"
 };
 const __nuxt_page_meta = {
-  layout: false
+  layout: false,
+  middleware: "auth"
 };
 function handleHotUpdate(_router, _generateRoutes) {
 }
@@ -1586,24 +1666,24 @@ const _routes = [
   {
     name: "about",
     path: "/about",
-    component: () => import('./about-DHsb7Am1.mjs')
+    component: () => import('./about-DRfyMxev.mjs')
   },
   {
     name: "auth-signin",
     path: "/auth/signin",
     meta: __nuxt_page_meta$1 || {},
-    component: () => import('./signin-DTezDcq6.mjs')
+    component: () => import('./signin-CTjE4qZy.mjs')
   },
   {
     name: "auth-signup",
     path: "/auth/signup",
     meta: __nuxt_page_meta || {},
-    component: () => import('./signup-BXJ1u0xl.mjs')
+    component: () => import('./signup-DZp4wc1G.mjs')
   },
   {
     name: "carriers",
     path: "/carriers",
-    component: () => import('./carriers-CK4__lDD.mjs')
+    component: () => import('./carriers-8aaHPGyj.mjs')
   },
   {
     name: "home-CategoriesSection",
@@ -1618,7 +1698,7 @@ const _routes = [
   {
     name: "home-FeaturesCoursesSection",
     path: "/home/FeaturesCoursesSection",
-    component: () => import('./FeaturesCoursesSection-CrFZ9rXJ.mjs')
+    component: () => import('./FeaturesCoursesSection-B3vrP-ks.mjs')
   },
   {
     name: "home-TestimonialsSection",
@@ -1628,7 +1708,7 @@ const _routes = [
   {
     name: "index",
     path: "/",
-    component: () => import('./index-CUHVZpDW.mjs')
+    component: () => import('./index-DX9i-p-U.mjs')
   }
 ];
 const _wrapInTransition = (props, children) => {
@@ -1754,8 +1834,10 @@ const globalMiddleware = [
   validate,
   manifest_45route_45rule
 ];
-const namedMiddleware = {};
-const plugin = /* @__PURE__ */ defineNuxtPlugin({
+const namedMiddleware = {
+  auth: () => import('./auth-B7S04yqL.mjs')
+};
+const plugin$1 = /* @__PURE__ */ defineNuxtPlugin({
   name: "nuxt:router",
   enforce: "pre",
   async setup(nuxtApp) {
@@ -1959,11 +2041,6 @@ const plugin_wnHB2iVUV4 = /* @__PURE__ */ defineNuxtPlugin({
     islands: true
   }
 });
-function definePayloadReducer(name, reduce) {
-  {
-    useNuxtApp().ssrContext._payloadReducers[name] = reduce;
-  }
-}
 const reducers = [
   ["NuxtError", (data) => isNuxtError(data) && data.toJSON()],
   ["EmptyShallowRef", (data) => isRef(data) && isShallow(data) && !data.value && (typeof data.value === "bigint" ? "0n" : JSON.stringify(data.value) || "_")],
@@ -1984,9 +2061,6 @@ const revive_payload_server_eJ33V7gbc6 = /* @__PURE__ */ defineNuxtPlugin({
     }
   }
 });
-const components_plugin_KR1HBZs4kY = /* @__PURE__ */ defineNuxtPlugin({
-  name: "nuxt:global-components"
-});
 const cfg0 = defineAppConfig({
   // Configure Quasar's Vue plugin (with HMR support)
   nuxtQuasar: {
@@ -2006,13 +2080,33 @@ function useAppConfig() {
   }
   return nuxtApp._appConfig;
 }
+const plugin = /* @__PURE__ */ defineNuxtPlugin({
+  name: "pinia",
+  setup(nuxtApp) {
+    const pinia = createPinia();
+    nuxtApp.vueApp.use(pinia);
+    setActivePinia(pinia);
+    {
+      nuxtApp.payload.pinia = toRaw(pinia.state.value);
+    }
+    return {
+      provide: {
+        pinia
+      }
+    };
+  }
+});
+const components_plugin_KR1HBZs4kY = /* @__PURE__ */ defineNuxtPlugin({
+  name: "nuxt:global-components"
+});
 const componentsWithDefaults = {};
 const appConfigKey = "nuxtQuasar";
 const quasarNuxtConfig = {
   lang,
   iconSet,
   components: { "defaults": {} },
-  plugins: {}
+  plugins: { Notify, Dialog, Dark: Plugin$2 },
+  config: { "notify": { "position": "top-right", "progress": true } }
 };
 function omit(object, keys) {
   return Object.keys(object).reduce((output, key) => {
@@ -2118,15 +2212,17 @@ const plugin_sb2LSEEy8f = /* @__PURE__ */ defineNuxtPlugin((nuxt) => {
   };
 });
 const plugins = [
+  payloadPlugin,
   unhead_KgADcZ0jPj,
-  plugin,
+  plugin$1,
   plugin_wnHB2iVUV4,
   revive_payload_server_eJ33V7gbc6,
+  plugin,
   components_plugin_KR1HBZs4kY,
   plugin_sb2LSEEy8f
 ];
 const layouts = {
-  default: defineAsyncComponent(() => import('./default-23hhdFeT.mjs').then((m) => m.default || m))
+  default: defineAsyncComponent(() => import('./default-BtvNXp5E.mjs').then((m) => m.default || m))
 };
 const LayoutLoader = defineComponent({
   name: "LayoutLoader",
@@ -2395,8 +2491,8 @@ const _sfc_main$1 = {
     const statusMessage = _error.statusMessage ?? (is404 ? "Page Not Found" : "Internal Server Error");
     const description = _error.message || _error.toString();
     const stack = void 0;
-    const _Error404 = defineAsyncComponent(() => import('./error-404-DKAenNPi.mjs'));
-    const _Error = defineAsyncComponent(() => import('./error-500-BiDvUA1c.mjs'));
+    const _Error404 = defineAsyncComponent(() => import('./error-404-BxFlTqfq.mjs'));
+    const _Error = defineAsyncComponent(() => import('./error-500-BQwI8THP.mjs'));
     const ErrorTemplate = is404 ? _Error404 : _Error;
     return (_ctx, _push, _parent, _attrs) => {
       _push(ssrRenderComponent(unref(ErrorTemplate), mergeProps({ statusCode: unref(statusCode), statusMessage: unref(statusMessage), description: unref(description), stack: unref(stack) }, _attrs), null, _parent));
@@ -2413,7 +2509,7 @@ const _sfc_main = {
   __name: "nuxt-root",
   __ssrInlineRender: true,
   setup(__props) {
-    const IslandRenderer = defineAsyncComponent(() => import('./island-renderer-CVT7Q9OV.mjs').then((r) => r.default || r));
+    const IslandRenderer = defineAsyncComponent(() => import('./island-renderer-KjHxolP9.mjs').then((r) => r.default || r));
     const nuxtApp = useNuxtApp();
     nuxtApp.deferHydration();
     nuxtApp.ssrContext.url;
@@ -2487,13 +2583,16 @@ const server = /*#__PURE__*/Object.freeze({
   default: entry$1,
   e: useRuntimeConfig,
   f: nuxtLinkDefaults,
-  g: asyncDataDefaults,
-  h: fetchDefaults,
+  g: defineNuxtRouteMiddleware,
+  h: executeAsync,
   i: injectHead,
+  j: useRoute,
+  k: asyncDataDefaults,
+  l: fetchDefaults,
   n: navigateTo,
   r: resolveRouteObject,
   u: useHead
 });
 
-export { nuxtLinkDefaults as A, injectHead as B, server as C, Platform as P, _export_sfc as _, useRuntimeConfig as a, useHead as b, createComponent as c, fetchDefaults as d, useNuxtApp as e, formKey as f, asyncDataDefaults as g, createError as h, cleanEvt as i, addEvt as j, emptyRenderFn as k, layoutKey as l, client as m, noop as n, stop as o, position as p, listenOpts as q, isRuntimeSsrPreHydration as r, stopAndPrevent as s, pageContainerKey as t, useSeoMeta as u, prevent as v, createDirective as w, useRouter as x, resolveRouteObject as y, navigateTo as z };
+export { executeAsync as A, layoutKey as B, emptyRenderFn as C, position as D, pageContainerKey as E, injectHead as F, server as G, Platform as P, _export_sfc as _, useQuasar as a, useRuntimeConfig as b, createComponent as c, fetchDefaults as d, useNuxtApp as e, formKey as f, asyncDataDefaults as g, createError as h, useRoute as i, isRuntimeSsrPreHydration as j, client as k, stop as l, useRouter as m, navigateTo as n, nuxtLinkDefaults as o, prevent as p, createDirective as q, resolveRouteObject as r, stopAndPrevent as s, listenOpts as t, useSeoMeta as u, cleanEvt as v, addEvt as w, noop as x, useHead as y, defineNuxtRouteMiddleware as z };
 //# sourceMappingURL=server.mjs.map

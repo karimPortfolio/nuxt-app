@@ -1,6 +1,7 @@
 import prisma from "~/lib/prisma";
+import { defineProtectedHandler } from "~/utils/defineProtectedhandler";
 
-export default defineEventHandler( async (event) => {
+export default defineProtectedHandler( async (event) => {
 
     const users =  await prisma.user.findMany({
         select: {
@@ -12,5 +13,6 @@ export default defineEventHandler( async (event) => {
             password: false,
         }
     });
+    
     return users;
 })

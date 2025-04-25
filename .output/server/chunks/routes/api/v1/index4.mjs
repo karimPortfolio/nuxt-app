@@ -1,13 +1,14 @@
-import { c as defineEventHandler } from '../../../_/nitro.mjs';
 import { p as prisma } from '../../../_/prisma.mjs';
+import { d as defineProtectedHandler } from '../../../_/defineProtectedhandler.mjs';
+import '@prisma/client';
+import '../../../_/nitro.mjs';
 import 'node:http';
 import 'node:https';
 import 'node:fs';
 import 'node:url';
 import 'node:path';
-import '@prisma/client';
 
-const index = defineEventHandler(async (event) => {
+const index = defineProtectedHandler(async (event) => {
   const users = await prisma.user.findMany({
     select: {
       id: true,

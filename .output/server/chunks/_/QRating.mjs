@@ -1,6 +1,6 @@
 import { getCurrentInstance, ref, computed, onBeforeUpdate, h } from 'vue';
 import { u as useSizeProps, a as useSize, _ as __nuxt_component_2$1 } from './QIcon.mjs';
-import { u as useFormProps, b as useFormAttrs, a as useFormInject } from './private.use-form.mjs';
+import { u as useFormProps, c as useFormAttrs, a as useFormInject } from './private.use-form.mjs';
 import { c as createComponent, s as stopAndPrevent } from '../build/server.mjs';
 import { a as hMergeSlot } from './render.mjs';
 

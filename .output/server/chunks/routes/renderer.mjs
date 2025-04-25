@@ -1,5 +1,5 @@
 import process from 'node:process';globalThis._importMeta_=globalThis._importMeta_||{url:"file:///_entry.js",env:process.env};import { getRequestDependencies, getPreloadLinks, getPrefetchLinks, createRenderer } from 'vue-bundle-renderer/runtime';
-import { j as joinRelativeURL, u as useRuntimeConfig, f as defineRenderHandler, h as getQuery, i as createError, k as getRouteRules, b as useNitroApp, l as getResponseStatusText, m as getResponseStatus, r as readBody, d as destr } from '../_/nitro.mjs';
+import { l as joinRelativeURL, u as useRuntimeConfig, m as defineRenderHandler, i as getQuery, h as createError, n as getRouteRules, b as useNitroApp, o as getResponseStatusText, p as getResponseStatus, r as readBody, d as destr } from '../_/nitro.mjs';
 import { stringify, uneval } from 'devalue';
 import { renderToString } from 'vue/server-renderer';
 import { propsToString, renderSSRHead } from '@unhead/ssr';
@@ -106,7 +106,7 @@ const getEntryIds = () => getClientManifest().then((r) => Object.values(r).filte
     r2._globalCSS
   )
 ).map((r2) => r2.src));
-const getServerEntry = () => import('../build/server.mjs').then(function (n) { return n.C; }).then((r) => r.default || r);
+const getServerEntry = () => import('../build/server.mjs').then(function (n) { return n.G; }).then((r) => r.default || r);
 const getSSRStyles = lazyCachedFunction(() => import('../build/styles.mjs').then((r) => r.default || r));
 const getSSRRenderer = lazyCachedFunction(async () => {
   const manifest = await getClientManifest();

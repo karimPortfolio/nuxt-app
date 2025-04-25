@@ -12,9 +12,27 @@ const index = defineEventHandler(async (event) => {
     where: {
       published: true
     },
-    include: {
-      category: true,
-      author: true
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      published: true,
+      price: true,
+      createdAt: true,
+      updatedAt: true,
+      category: {
+        select: {
+          id: true,
+          name: true
+        }
+      },
+      author: {
+        select: {
+          id: true,
+          name: true,
+          email: true
+        }
+      }
     }
   });
   return courses;
